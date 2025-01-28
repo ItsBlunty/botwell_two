@@ -28,7 +28,7 @@ CHANNEL_ID = 'UCX3eufnI7A2I7IkKHZn8KSQ'
 
 class MyBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix='!', intents=intents, help_command=None, max_messages=20000)
+        super().__init__(command_prefix='!', intents=intents, help_command=None)
         self.message_cache = {}
 
     async def setup_hook(self):
@@ -38,12 +38,11 @@ bot = MyBot()
 # bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 bot.remove_command('help')
 
-@tasks.loop(minutes=1)  # Saves every 5 minutes
+@tasks.loop(minutes=5)  # Saves every 5 minutes
 async def auto_save_cache():
     try:
         with open('message_cache.pkl', 'wb') as f:
             pickle.dump(bot.message_cache, f)
-        print(f"Auto-saved cache: {len(bot.message_cache)} messages")
     except Exception as e:
         print(f"Error auto-saving cache: {e}")
 
@@ -287,7 +286,7 @@ async def on_raw_message_delete(payload):
         # Remove from cache after logging
         del bot.message_cache[str(payload.message_id)]
         
-        log_channel = bot.get_channel(1333905415683051590)
+        log_channel = bot.get_channel(int(os.getenv('LOGGING_CHANNEL'))) 
         if log_channel:
             await log_channel.send(embed=embed)
     else:
