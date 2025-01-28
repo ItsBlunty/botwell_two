@@ -84,10 +84,10 @@ async def links(ctx):
     await ctx.send("You can find bardwell\'s links at:\nhttps://www.fpvknowitall.com/\nhttps://www.searchfpv.com\nhttps://www.youtube.com/channel/UCX3eufnI7A2I7IkKHZn8KSQ", suppress_embeds=True)
 
 @bot.command()
-async def botwell(ctx, *, query):
+async def botwell(ctx, *, query=None):
     cleanup_old_searches()
-    if query == "":
-        await ctx.send("You need to add a search term after `!botwell`!")
+    if query is None or query.strip() == "":
+        await ctx.send('You need to add a search term after `!botwell`\nExample:`!botwell expresslrs binding` will search for "ExpressLRS Binding" on JB\'s channel.')
         return
     
     results = search_channel(query, CHANNEL_ID, YOUTUBE_API_KEY)
