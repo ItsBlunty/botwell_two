@@ -129,7 +129,10 @@ async def more(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def result(ctx, *, number):
+async def result(ctx, *, number=None):
+    if number is None or number.strip() == "":
+        await ctx.send("We can't find that result! Maybe you mistyped? It should just be `!result 1` `!result 2` or `!result 3`")
+        return
     user_data = search_results.get(ctx.author.id)
     if int(number) not in [1, 2, 3]:
         await ctx.send("We can't find that result! Maybe you mistyped? It should just be `!result 1` `!result 2` or `!result 3`")
