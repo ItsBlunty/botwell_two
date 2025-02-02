@@ -2,9 +2,7 @@ import discord
 import pickle
 from datetime import datetime
 from pathlib import Path
-from discord import TextStyle
 from discord.ext import commands, tasks
-from discord.ui import Modal, TextInput, Button, View
 from dotenv import load_dotenv
 import os
 import signal
@@ -19,9 +17,6 @@ intents.message_content = True
 intents.guild_messages = True
 
 load_dotenv()
-
-YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
-CHANNEL_ID = 'UCX3eufnI7A2I7IkKHZn8KSQ'
 
 class MyBot(commands.Bot):
     def __init__(self):
@@ -97,44 +92,12 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-class FeedbackModal(Modal, title='Feedback'):
-    def __init__(self):
-        super().__init__(title="Botwell Feedback")
-
-        self.feedback = TextInput(
-            label="Want anything changed? New Features?",
-            style=TextStyle.paragraph,
-            placeholder="Enter your feedback here...",
-            required=True,
-            max_length=300
-        )
-        self.add_item(self.feedback)
-    
-    async def on_submit(self, interaction: discord.Interaction):
-        with open('feedback.txt', 'a') as f:
-            f.write(f"{interaction.user.name}: {self.feedback.value}\n")
-        
-        await interaction.response.send_message("Thanks for writing in!", ephemeral=True)
-
 @bot.event
 async def on_ready():
     print(f'{bot.user} is now online!')
     await load_cache()
     auto_save_cache.start()
     cleanup_message_cache.start()
-
-@bot.command(aliases=['thoughts'])
-async def feedback(ctx):
-    button = Button(label="Give Feedback", style=discord.ButtonStyle.primary)
-
-    async def button_callback(interaction):
-        modal = FeedbackModal()
-        await interaction.response.send_modal(modal)
-    
-    button.callback = button_callback
-    view = View()
-    view.add_item(button)
-    await ctx.send("Click the button to give feedback about Botwell:", view=view)
 
 @bot.event
 async def on_message(message):

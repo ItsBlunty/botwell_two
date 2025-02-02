@@ -4,3 +4,4 @@ venv/
 Botwellkeypair.pem
 message_cache.pkl
 botwell
+feedback.txt
