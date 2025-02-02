@@ -9,14 +9,6 @@ import signal
 from utils.cache_utils import cleanup_old_messages
 from bot import MyBot
 
-
-intents = discord.Intents.default()
-intents.message_content = True
-intents.messages = True
-intents.guilds = True 
-intents.message_content = True
-intents.guild_messages = True
-
 load_dotenv()
 
 bot = MyBot()
