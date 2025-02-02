@@ -3,7 +3,6 @@ import pickle
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from discord import TextStyle
-from discord import app_commands
 from discord.ext import commands, tasks
 from discord.ui import Modal, TextInput, Button, View
 from googleapiclient.discovery import build
@@ -33,13 +32,13 @@ class MyBot(commands.Bot):
         self.message_cache = {}
 
     async def setup_hook(self):
+        await self.load_extension('cogs.cache_commands')
         await self.tree.sync()
 
 bot = MyBot()
-# bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 bot.remove_command('help')
 
-@tasks.loop(minutes=5)  # Saves every 5 minutes
+@tasks.loop(minutes=5)
 async def auto_save_cache():
     try:
         with open('message_cache.pkl', 'wb') as f:
@@ -123,29 +122,44 @@ def cleanup_old_messages(message_cache):
     current_time = datetime.now(timezone.utc)
     week_ago = current_time - timedelta(days=14)
     
-    # Find messages older than a week
     expired = [msg_id for msg_id, msg_data in message_cache.items()
               if msg_data['timestamp'] < week_ago]
     
-    # Remove expired messages
     for msg_id in expired:
         del message_cache[msg_id]
     
-    return len(expired)  # Return number of cleaned messages
-
+    return len(expired)
 
 def signal_handler(sig, frame):
     print("Shutdown initiated via Ctrl+C")
-    # Save cache synchronously
-    try:
-        with open('message_cache.pkl', 'wb') as f:
-            pickle.dump(bot.message_cache, f)
-        print(f"Final cache save completed: {len(bot.message_cache)} messages")
-    except Exception as e:
-        print(f"Error saving cache during shutdown: {e}")
     
-    # Exit
+    if hasattr(bot, 'message_cache') and bot.message_cache:
+        try:
+            if Path('message_cache.pkl').exists():
+                try:
+                    with open('message_cache.pkl', 'rb') as f:
+                        existing_cache = pickle.load(f)
+                        existing_size = len(existing_cache)
+                    
+                    if len(bot.message_cache) >= existing_size:
+                        with open('message_cache.pkl', 'wb') as f:
+                            pickle.dump(bot.message_cache, f)
+                        print(f"Final cache save completed: {len(bot.message_cache)} messages")
+                    else:
+                        print(f"Skipping save: Current cache ({len(bot.message_cache)}) smaller than stored cache ({existing_size})")
+                except Exception as e:
+                    print(f"Error checking existing cache: {e}")
+            else:
+                with open('message_cache.pkl', 'wb') as f:
+                    pickle.dump(bot.message_cache, f)
+                print(f"Final cache save completed: {len(bot.message_cache)} messages")
+        except Exception as e:
+            print(f"Error saving cache during shutdown: {e}")
+    else:
+        print("Cache not yet loaded or empty, skipping save")
+    
     raise SystemExit
+
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -322,17 +336,16 @@ async def on_raw_message_delete(payload):
 # Set userid below to your admin user ID in discord
 userid = 152656828193439744
 
-
-@bot.command(aliases=['cachesize','cache'])
-async def cacheinfo(ctx):
-    if ctx.author.id == userid:  # Replace with your Discord ID
-        cache_size = len(bot.message_cache)
-        oldest_message = min(bot.message_cache.values(), key=lambda x: x['timestamp'])
-        newest_message = max(bot.message_cache.values(), key=lambda x: x['timestamp'])
+# @bot.command(aliases=['cachesize','cache'])
+# async def cacheinfo(ctx):
+#     if ctx.author.id == userid:  # Replace with your Discord ID
+#         cache_size = len(bot.message_cache)
+#         oldest_message = min(bot.message_cache.values(), key=lambda x: x['timestamp'])
+#         newest_message = max(bot.message_cache.values(), key=lambda x: x['timestamp'])
         
-        await ctx.send(f"Cache contains {cache_size} messages\n"
-                      f"Oldest message: {oldest_message['timestamp']}\n"
-                      f"Newest message: {newest_message['timestamp']}")
+#         await ctx.send(f"Cache contains {cache_size} messages\n"
+#                       f"Oldest message: {oldest_message['timestamp']}\n"
+#                       f"Newest message: {newest_message['timestamp']}")
 
 @bot.command(aliases=['cleanup','cleanmessages'])
 async def forcecleanup(ctx):
