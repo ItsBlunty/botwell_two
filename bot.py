@@ -6,7 +6,6 @@ from discord import TextStyle
 from discord.ext import commands, tasks
 from discord.ui import Modal, TextInput, Button, View
 from googleapiclient.discovery import build
-from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 import signal
@@ -330,51 +329,6 @@ async def on_raw_message_delete(payload):
             await log_channel.send(embed=embed)
     else:
         print(f"Message {payload.message_id} not found in cache")
-
-
-# These are Admin commands to assure functionality is working properly in the bot.
-# Set userid below to your admin user ID in discord
-userid = 152656828193439744
-
-# @bot.command(aliases=['cachesize','cache'])
-# async def cacheinfo(ctx):
-#     if ctx.author.id == userid:  # Replace with your Discord ID
-#         cache_size = len(bot.message_cache)
-#         oldest_message = min(bot.message_cache.values(), key=lambda x: x['timestamp'])
-#         newest_message = max(bot.message_cache.values(), key=lambda x: x['timestamp'])
-        
-#         await ctx.send(f"Cache contains {cache_size} messages\n"
-#                       f"Oldest message: {oldest_message['timestamp']}\n"
-#                       f"Newest message: {newest_message['timestamp']}")
-
-@bot.command(aliases=['cleanup','cleanmessages'])
-async def forcecleanup(ctx):
-    if ctx.author.id == userid:  # Replace with your Discord ID
-        before_size = len(bot.message_cache)
-        cleaned = cleanup_old_messages(bot.message_cache)
-        after_size = len(bot.message_cache)
-        
-        await ctx.send(f"Cache size before: {before_size}\n"
-                      f"Messages cleaned: {cleaned}\n"
-                      f"Cache size after: {after_size}")
-        
-@bot.command(aliases=['addmessage'])
-async def addtestmessage(ctx, days_old: int):
-    if ctx.author.id == userid:  # Replace with your Discord ID
-        # Create a message from X days ago
-        old_timestamp = datetime.now(timezone.utc) - timedelta(days=days_old)
-        
-        test_message_id = f"test_{ctx.message.id}"
-        bot.message_cache[test_message_id] = {
-            'content': f"Test message {days_old} days old",
-            'author': str(ctx.author),
-            'author_id': ctx.author.id,
-            'channel_id': ctx.channel.id,
-            'timestamp': old_timestamp,
-            'attachments': []
-        }
-        
-        await ctx.send(f"Added test message to cache with timestamp: {old_timestamp}")
 
 @bot.event
 async def on_disconnect():
