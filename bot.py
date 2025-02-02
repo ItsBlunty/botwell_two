@@ -285,8 +285,7 @@ async def feedback(ctx):
 
 @bot.event
 async def on_message(message):
-    if not message.author.bot:  # Don't cache bot messages
-        # Store message ID as string
+    if not message.author.bot: 
         message_id = str(message.id)
         bot.message_cache[message_id] = {
             'content': message.content,
@@ -302,7 +301,6 @@ async def on_message(message):
 async def on_raw_message_delete(payload):
     print(f"Delete event - Message ID: {payload.message_id}")
     
-    # Try to get cached message
     cached_message = bot.message_cache.get(str(payload.message_id))
     
     if cached_message:
@@ -320,10 +318,9 @@ async def on_raw_message_delete(payload):
         if cached_message['attachments']:
             attachments = "\n".join([f"[{filename}]({url})" for filename, url in cached_message['attachments']])
             embed.add_field(name="Attachments", value=attachments, inline=False)
-        
-        # Remove from cache after logging
+
         del bot.message_cache[str(payload.message_id)]
-        
+
         log_channel = bot.get_channel(int(os.getenv('LOGGING_CHANNEL'))) 
         if log_channel:
             await log_channel.send(embed=embed)
