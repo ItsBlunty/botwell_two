@@ -1,5 +1,5 @@
 from discord.ext import commands
-from utils.cache_utils import cleanup_old_messages
+from utils.cache_utils import CacheUtils
 from datetime import datetime, timedelta, timezone
 
 class CacheCommands(commands.Cog):
@@ -20,19 +20,22 @@ class CacheCommands(commands.Cog):
 
     @commands.command(aliases=['cleanup','cleanmessages'])
     async def forcecleanup(self, ctx):
-        if ctx.author.id == self.userid:  # Replace with your Discord ID
-            before_size = len(self.bot.message_cache)
-            cleaned = cleanup_old_messages(self.bot.message_cache)
-            after_size = len(self.bot.message_cache)
-            
-            await ctx.send(f"Cache size before: {before_size}\n"
-                        f"Messages cleaned: {cleaned}\n"
-                        f"Cache size after: {after_size}")
+        if ctx.author.id == self.userid: 
+            cache_utils_cog = self.bot.get_cog('CacheUtils')
+            if cache_utils_cog:
+                before_size = len(self.bot.message_cache)
+                cleaned = cache_utils_cog.cleanup_old_messages()
+                after_size = len(self.bot.message_cache)
+                
+                await ctx.send(f"Cache size before: {before_size}\n"
+                            f"Messages cleaned: {cleaned}\n"
+                            f"Cache size after: {after_size}")
+            else:
+                await ctx.send("CacheUtils cog not found")
             
     @commands.command(aliases=['addmessage'])
     async def addtestmessage(self, ctx, days_old: int):
-        if ctx.author.id == self.userid:  # Replace with your Discord ID
-            # Create a message from X days ago
+        if ctx.author.id == self.userid: 
             old_timestamp = datetime.now(timezone.utc) - timedelta(days=days_old)
             
             test_message_id = f"test_{ctx.message.id}"

@@ -14,6 +14,7 @@ class MyBot(commands.Bot):
         self.message_cache = {}
 
     async def setup_hook(self):
+        await self.load_extension('utils.cache_utils')
         await self.load_extension('cogs.events')
         await self.load_extension('cogs.cache_commands')
         await self.load_extension('cogs.general_commands')

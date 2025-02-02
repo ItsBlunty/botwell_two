@@ -6,7 +6,7 @@ from discord.ext import tasks
 from dotenv import load_dotenv
 import os
 import signal
-from utils.cache_utils import cleanup_old_messages
+from utils.cache_utils import CacheUtils
 from bot import MyBot
 
 load_dotenv()
@@ -25,8 +25,12 @@ async def auto_save_cache():
 @tasks.loop(hours=24)
 async def cleanup_message_cache():
     try:
-        cleaned = cleanup_old_messages(bot.message_cache)
-        print(f"Cleaned {cleaned} messages from cache")
+        cache_utils_cog = bot.get_cog('CacheUtils')
+        if cache_utils_cog:
+            cleaned = cache_utils_cog.cleanup_old_messages()
+            print(f"Cleaned {cleaned} messages from cache")
+        else:
+            print("CacheUtils cog not found")
     except Exception as e:
         print(f"Error cleaning message cache: {e}")
 

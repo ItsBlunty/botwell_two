@@ -1,5 +1,5 @@
 from discord.ext import commands
-from utils.cache_utils import cleanup_old_searches
+from utils.cache_utils import CacheUtils
 from utils.search_utils import format_video_results, search_channel, search_results
 from datetime import datetime
 from dotenv import load_dotenv
@@ -14,7 +14,7 @@ class SearchCommands(commands.Cog):
 
     @commands.command(aliases=['search'])
     async def botwell(self, ctx, *, query=None):
-        cleanup_old_searches()
+        CacheUtils.cleanup_old_searches(self)
         if query is None or query.strip() == "":
             await ctx.send('You need to add a search term after `!botwell`\nExample:`!botwell expresslrs binding` will search for "ExpressLRS Binding" on JB\'s channel.')
             return

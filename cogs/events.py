@@ -1,4 +1,4 @@
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 class EventHandler(commands.Cog):
     def __init__(self, bot):
@@ -16,6 +16,8 @@ class EventHandler(commands.Cog):
                 'timestamp': message.created_at,
                 'attachments': [(a.filename, a.url) for a in message.attachments]
             }
+
+
 
 async def setup(bot):
     await bot.add_cog(EventHandler(bot))
