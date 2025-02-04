@@ -1,5 +1,4 @@
 from discord.ext import commands
-from utils.cache_utils import CacheUtils
 from datetime import datetime, timedelta, timezone
 
 class CacheCommands(commands.Cog):

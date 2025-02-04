@@ -3,7 +3,7 @@ from googleapiclient import discovery
 import os
 import pickle
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 class NewVideoHandler(commands.Cog):
     def __init__(self, bot):
