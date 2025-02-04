@@ -2,9 +2,14 @@ import discord
 from discord.ext import commands
 from discord.ui import Modal, TextInput, Button, View
 from discord import TextStyle
+import os
+from datetime import datetime, timezone
+from googleapiclient import discovery
 
 
 class GeneralCommands(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
 
     @commands.command(aliases=['commands','howto', 'bot'])
     async def help(self, ctx):

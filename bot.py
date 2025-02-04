@@ -19,4 +19,5 @@ class MyBot(commands.Bot):
         await self.load_extension('cogs.cache_commands')
         await self.load_extension('cogs.general_commands')
         await self.load_extension('cogs.search_commands')
+        await self.load_extension('utils.newvideohandler')
         await self.tree.sync()
