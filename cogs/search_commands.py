@@ -1,5 +1,4 @@
 from discord.ext import commands
-from utils.cache_utils import CacheUtils
 from utils.search_utils import format_video_results, search_channel, search_results
 from datetime import datetime
 from dotenv import load_dotenv
@@ -12,33 +11,40 @@ CHANNEL_ID = 'UCX3eufnI7A2I7IkKHZn8KSQ'
 
 class SearchCommands(commands.Cog):
 
+    def __init__(self, bot):
+        self.bot = bot
+
     @commands.command(aliases=['search'])
     async def botwell(self, ctx, *, query=None):
-        CacheUtils.cleanup_old_searches(self)
-        if query is None or query.strip() == "":
-            await ctx.send('You need to add a search term after `!botwell`\nExample:`!botwell expresslrs binding` will search for "ExpressLRS Binding" on JB\'s channel.')
-            return
-        
-        results = search_channel(query, CHANNEL_ID, YOUTUBE_API_KEY)
+        cache_utils_cog = self.bot.get_cog('CacheUtils')
+        if cache_utils_cog:
+            cache_utils_cog.cleanup_old_searches()
+            if query is None or query.strip() == "":
+                await ctx.send('You need to add a search term after `!botwell`\nExample:`!botwell expresslrs binding` will search for "ExpressLRS Binding" on JB\'s channel.')
+                return
+            
+            results = search_channel(query, CHANNEL_ID, YOUTUBE_API_KEY)
 
-        if results is None:
-            await ctx.send("Sorry, there was an error accessing YouTube. Please try again later.")
-            return
+            if results is None:
+                await ctx.send("Sorry, there was an error accessing YouTube. Please try again later.")
+                return
 
-        if not results['items']:
-            await ctx.send("No videos found for that search!")
-            return
-        
-        search_results[ctx.author.id] = {
-            'results': results,
-            'last_index': 3,
-            'timestamp': datetime.now()
-        }
-        embed = format_video_results(results, 0)
-        if embed is None:
-            await ctx.send("No more results available!")
-            return
-        await ctx.send(embed=embed)
+            if not results['items']:
+                await ctx.send("No videos found for that search!")
+                return
+            
+            search_results[ctx.author.id] = {
+                'results': results,
+                'last_index': 3,
+                'timestamp': datetime.now()
+            }
+            embed = format_video_results(results, 0)
+            if embed is None:
+                await ctx.send("No more results available!")
+                return
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("CacheUtils cog not found")
 
     @commands.command(aliases=['morevideos'])
     async def more(self, ctx):
