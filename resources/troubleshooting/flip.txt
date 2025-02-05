@@ -1,0 +1,11 @@
+If the quadcopter instantly flips over when you arm and raise the throttle with props on, it is almost 100% certain to be one of these things:
+
+1. Clockwise prop installed on counter-clockwise spinning motor or vice versa.
+
+2. Flight controller not facing forward. Go to the Setup tab in the configurator. Tilt the quadcopter on all axes (pitch, roll, yaw) with your hands. The 3D model in the configurator should move the same as you move it with your hand. If it does not, use the Board Alignment parameter in the Configuration tab to fix it.
+
+3. Motors not wired correctly. TAKE OFF YOUR PROPS. Plug in a battery. Go to the Motors tab. Turn on the "props are off" slider in the lower-right. Raise the individual sliders (1, 2, 3, and 4) one at a time, just enough that the motor begins spinning. The motor positions (1, 2, 3, and 4) should match the graphic in the upper left. If they do not, then either move the signal wires so that they are correct or use resource reassignment to virtually "move" the motors.
+
+4. Motor spinning wrong direction. Do the same as step 3 but compare the motor direction to the arrows on the graphic in the upper left. If a motor is spinning the wrong direction, either reverse it using BLHeli (or whatever ESC software you are using) or swap any two motor wires with each other, which will reverse the direction.
+
+Many times, people swear up and down they have checked all of these things, and then come back to say oops I missed one you were right. So if you think you have checked all of these things and your quad still FLIPS OUT, go back and check again. If your quad is insta-flipping on takeoff, it is almost always one of these things.

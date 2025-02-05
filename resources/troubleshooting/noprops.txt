@@ -1,0 +1,5 @@
+If your quadcopter motors are spinning up on their own, and you don't have props on the motors, this is completely normal!
+
+Check out this video for a good explanation:
+
+https://www.youtube.com/watch?v=xBaefeQtA1c
