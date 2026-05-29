@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ui import Modal, TextInput, Button, View
 from discord import TextStyle
+from utils.storage import data_path
 
 
 class GeneralCommands(commands.Cog):
@@ -51,7 +52,7 @@ class FeedbackModal(Modal, title='Feedback'):
         self.add_item(self.feedback)
     
     async def on_submit(self, interaction: discord.Interaction):
-        with open('feedback.txt', 'a') as f:
+        with open(data_path('feedback.txt'), 'a', encoding='utf-8') as f:
             f.write(f"{interaction.user.name}: {self.feedback.value}\n")
         
         await interaction.response.send_message("Thanks for writing in!", ephemeral=True)
