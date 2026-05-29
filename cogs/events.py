@@ -1,4 +1,5 @@
 from discord.ext import commands
+from utils.storage import data_path
 import signal
 import pickle
 from datetime import datetime
@@ -12,21 +13,24 @@ class EventHandler(commands.Cog):
 
     def setup_signal_handler(self):
         def signal_handler(sig, frame):
-            print("Shutdown initiated via Ctrl+C")
-            
+            print("Shutdown initiated")
+
             if hasattr(self.bot, 'message_cache') and self.bot.message_cache:
                 try:
-                    with open('message_cache.pkl', 'wb') as f:
+                    with open(data_path('message_cache.pkl'), 'wb') as f:
                         pickle.dump(self.bot.message_cache, f)
                     print(f"Final cache save completed: {len(self.bot.message_cache)} messages")
                 except Exception as e:
                     print(f"Error saving cache during shutdown: {e}")
             else:
                 print("Cache not yet loaded or empty, skipping save")
-            
+
             raise SystemExit
 
+        # SIGINT covers local Ctrl+C; SIGTERM is what Railway (and most
+        # container platforms) send on shutdown/redeploy.
         signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
 
     @commands.Cog.listener()
     async def on_message(self, message):

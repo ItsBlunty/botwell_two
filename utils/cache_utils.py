@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from discord.ext import commands, tasks
 from utils.search_utils import search_results
+from utils.storage import data_path
 import pickle
-from pathlib import Path
+import os
 
 
 class CacheUtils(commands.Cog):
@@ -31,8 +32,8 @@ class CacheUtils(commands.Cog):
 
     async def load_cache(self):
         try:
-            if Path('message_cache.pkl').exists():
-                with open('message_cache.pkl', 'rb') as f:
+            if os.path.exists(data_path('message_cache.pkl')):
+                with open(data_path('message_cache.pkl'), 'rb') as f:
                     self.bot.message_cache = pickle.load(f)
                 print(f"Cache loaded: {len(self.bot.message_cache)} messages")
         except Exception as e:
@@ -42,7 +43,7 @@ class CacheUtils(commands.Cog):
     @tasks.loop(minutes=5)
     async def auto_save_cache(self):
         try:
-            with open('message_cache.pkl', 'wb') as f:
+            with open(data_path('message_cache.pkl'), 'wb') as f:
                 pickle.dump(self.bot.message_cache, f)
         except Exception as e:
             print(f"Error auto-saving cache: {e}")

@@ -1,8 +1,8 @@
 from discord.ext import commands, tasks
 from googleapiclient import discovery
+from utils.storage import data_path
 import os
 import pickle
-from pathlib import Path
 from datetime import datetime, timezone
 
 class NewVideoHandler(commands.Cog):
@@ -16,8 +16,8 @@ class NewVideoHandler(commands.Cog):
 
     def load_video_cache(self):
         try:
-            if Path('video_cache.pkl').exists():
-                with open('video_cache.pkl', 'rb') as f:
+            if os.path.exists(data_path('video_cache.pkl')):
+                with open(data_path('video_cache.pkl'), 'rb') as f:
                     self.video_cache = pickle.load(f)
                 print(f"Video cache loaded: {len(self.video_cache)} videos")
         except Exception as e:
@@ -26,7 +26,7 @@ class NewVideoHandler(commands.Cog):
 
     def save_video_cache(self):
         try:
-            with open('video_cache.pkl', 'wb') as f:
+            with open(data_path('video_cache.pkl'), 'wb') as f:
                 pickle.dump(self.video_cache, f)
         except Exception as e:
             print(f"Error saving video cache: {e}")
