@@ -8,12 +8,8 @@ class FpvCommands(commands.Cog):
 
     @commands.command(aliases=['ts'])
     async def troubleshooting(self, ctx, query=None):
-        if query is None:   
-            await ctx.send("Reply with one of the following after !ts\n\n!ts flip: guide for fixing a flipping quadcopter\n!ts impulserc: link to impulserc driver fixer\n!ts noprops: quick explanation of why your motors spin up on their own without props")
-        elif query == "flip" or query == "flip on arm" or query == "flip on takeoff" or query == "flip out":
-            with open('resources/troubleshooting/flip.txt', 'r') as f:
-                flip_content = f.read()
-            await ctx.send(flip_content)
+        if query is None:
+            await ctx.send("Reply with one of the following after !ts\n\n!ts impulserc: link to impulserc driver fixer\n!ts noprops: quick explanation of why your motors spin up on their own without props")
         elif query == "impulserc" or query == "driver fixer" or query == "driverfixer" or query == "impulsercdriverfixer":
             with open('resources/troubleshooting/impulserc.txt', 'r') as f:
                 impulserc_content = f.read()
@@ -22,6 +18,10 @@ class FpvCommands(commands.Cog):
             with open('resources/troubleshooting/noprops.txt', 'r') as f:
                 noprops_content = f.read()
             await ctx.send(noprops_content)
+
+    @commands.command()
+    async def flip(self, ctx):
+        await ctx.send("https://www.youtube.com/watch?v=7sSYwzVCJdA")
 
 async def setup(bot):
     await bot.add_cog(FpvCommands(bot))

@@ -4,6 +4,9 @@ from discord.ui import Modal, TextInput, Button, View
 from discord import TextStyle
 from utils.storage import data_path
 
+# Bot owner who receives feedback DMs.
+OWNER_ID = 152656828193439744
+
 
 class GeneralCommands(commands.Cog):
     def __init__(self, bot):
@@ -52,9 +55,19 @@ class FeedbackModal(Modal, title='Feedback'):
         self.add_item(self.feedback)
     
     async def on_submit(self, interaction: discord.Interaction):
+        # Keep a local copy as a backup (persisted to the volume via DATA_DIR).
         with open(data_path('feedback.txt'), 'a', encoding='utf-8') as f:
             f.write(f"{interaction.user.name}: {self.feedback.value}\n")
-        
+
+        # DM the bot owner with the feedback.
+        try:
+            owner = await interaction.client.fetch_user(OWNER_ID)
+            await owner.send(
+                f"**New Botwell feedback** from {interaction.user} ({interaction.user.id}):\n{self.feedback.value}"
+            )
+        except Exception as e:
+            print(f"Error sending feedback DM to owner: {e}")
+
         await interaction.response.send_message("Thanks for writing in!", ephemeral=True)
 
 async def setup(bot):
