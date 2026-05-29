@@ -87,11 +87,66 @@ class EventHandler(commands.Cog):
 
             del self.bot.message_cache[str(payload.message_id)]
 
-            log_channel = self.bot.get_channel(int(os.getenv('LOGGING_CHANNEL'))) 
+            log_channel = self.bot.get_channel(int(os.getenv('LOGGING_CHANNEL')))
             if log_channel:
                 await log_channel.send(embed=embed)
         else:
             print(f"Message {payload.message_id} not found in cache")
+
+    @commands.Cog.listener()
+    async def on_raw_message_edit(self, payload):
+        message_id = str(payload.message_id)
+        cached_message = self.bot.message_cache.get(message_id)
+
+        # We can only show "before" if we saw the original message.
+        if not cached_message:
+            print(f"Edit event - Message {payload.message_id} not found in cache")
+            return
+
+        # The raw payload can be partial (e.g. when Discord adds a link
+        # preview embed it sends an update with no 'content' key). Only act
+        # when the gateway gave us the new text.
+        new_content = payload.data.get('content')
+        if new_content is None:
+            return
+
+        old_content = cached_message['content']
+        # Embed/preview updates and no-op edits leave the text unchanged.
+        if new_content == old_content:
+            return
+
+        print(f"Edit event - Message ID: {payload.message_id}")
+
+        embed = discord.Embed(
+            title="Message Edited",
+            description=f"In <#{cached_message['channel_id']}>",
+            color=discord.Color.gold(),
+            timestamp=datetime.now()
+        )
+
+        embed.add_field(name="Author", value=cached_message['author'], inline=False)
+        embed.add_field(name="Original Message", value=self._field_value(old_content), inline=False)
+        embed.add_field(name="Edited Message", value=self._field_value(new_content), inline=False)
+
+        if payload.guild_id:
+            jump_url = f"https://discord.com/channels/{payload.guild_id}/{cached_message['channel_id']}/{message_id}"
+            embed.add_field(name="Jump", value=f"[Go to message]({jump_url})", inline=False)
+
+        # Keep the cache current so a later edit compares against this version.
+        cached_message['content'] = new_content
+
+        log_channel = self.bot.get_channel(int(os.getenv('LOGGING_CHANNEL')))
+        if log_channel:
+            await log_channel.send(embed=embed)
+
+    @staticmethod
+    def _field_value(content):
+        """Embed field values are capped at 1024 chars; keep us under it."""
+        if not content:
+            return "No text content"
+        if len(content) > 1024:
+            return content[:1021] + "..."
+        return content
 
 async def setup(bot):
     await bot.add_cog(EventHandler(bot))
